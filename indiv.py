@@ -90,6 +90,11 @@ class Indiv:
             return [0, 0, 0, 0, 0]
 
         for value in values:
+            
+            # Skip food outside max range square
+            if abs(value[0] - self.x) > self.sight_range or abs(value[1] - self.y) > self.sight_range:
+                continue
+            
             angle = self.angle - np.arctan2(value[1] - self.y, value[0] - self.x)
 
             if abs(angle) < edge_angle:
