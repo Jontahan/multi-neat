@@ -6,19 +6,21 @@ from renderer import Renderer
 
 
 class Environment:
-    grid_size   = 64    # Size of the world
-    pop_size    = 60    # Initial population size
-    num_food    = 120   # Initial amount of food
-    nutrition   = 200   # Food nutrition
-    steps       = 300   # Number of time steps per generation
-
     agents = []
     foods = []
 
-    def __init__(self, seed):
-        self.rand = np.random.default_rng(seed)
+    def __init__(self, run_config):
+        self.rand = np.random.default_rng(run_config['seed'])
+        self.grid_size = run_config['grid_size']
+        self.pop_size = run_config['pop_size']
+        self.num_food = run_config['num_food']
+        self.nutrition = run_config['nutrition']
+        self.steps = run_config['steps']
+        
         self.state = 0
         self.renderer = Renderer(self.grid_size)
+
+
 
     def evaluate_genomes(self, genomes, config):
         self.state += 1

@@ -4,20 +4,20 @@ import datetime
 import random
 import visualize
 import environment
-
-generations = 100
-seed = 183
-random.seed(seed)
-env = environment.Environment(seed)
+import wblog
 
 
-def run(config_file):
+
+def run(config_file, run_config):
+    random.seed(run_config['seed'])
+    env = environment.Environment(run_config)
+
     # Load configuration.
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
     config.pop_size = env.pop_size
-
+    
     # Create the population, which is the top-level object for a NEAT run.
     p = neat.Population(config)
 
@@ -25,10 +25,13 @@ def run(config_file):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-
+    
     # Run for up to n generations.
-    winner = p.run(env.evaluate_genomes, generations)
+    winner = p.run(env.evaluate_genomes, run_config['generations'])
 
+    wblog.upload(stats, run_config)
+
+    """
     node_names = {
         -1: "constant",
         -2: "vision 0",
@@ -63,13 +66,24 @@ def run(config_file):
 
     # Display the winning genome.
     print('\nBest genome:\n{!s}'.format(winner))
-
+    """
 
 if __name__ == '__main__':
     # visualize.draw_from_file('results/20221125_1133/avg_fitness_20221125_1133.svg.data')
     # Determine path to configuration file. This path manipulation is
     # here so that the script will run successfully regardless of the
     # current working directory.
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'config')
-    run(config_path)
+    for i in range(10, 200, 10):
+        run_config = {
+            'generations' : 100,
+            'grid_size' : 64,    # Size of the world
+            'pop_size' : i,    # Initial population size
+            'num_food' : 120,   # Initial amount of food
+            'nutrition' : 200,   # Food nutrition
+            'steps' : 300,   # Number of time steps per generation
+            'seed' : 183
+        }
+        
+        local_dir = os.path.dirname(__file__)
+        config_path = os.path.join(local_dir, 'config')
+        run(config_path, run_config)
